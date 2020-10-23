@@ -3,6 +3,8 @@ import path from 'path';
 import { format as formatUrl } from 'url';
 import { ChildProcess, spawn } from 'child_process';
 
+import './config-loader';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
@@ -51,7 +53,7 @@ app.on('window-all-closed', () => {
 let tray: Tray;
 
 function createTray() {
-  tray = new Tray('static/logo.png');
+  tray = new Tray('static/tray-icon.png');
   tray.setToolTip('NodeCG GUI');
   setTrayMenu();
 }
