@@ -43,6 +43,9 @@
     ],
     "nsis": {
       "oneClick": false
+    },
+    "win": {
+      "publish": "github"
     }
   },
   "electronWebpack": {
