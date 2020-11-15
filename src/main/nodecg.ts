@@ -70,7 +70,7 @@ function getNodeCGUrl(e?: Electron.IpcMainEvent) {
   const uri = new URI()
     .protocol('http')
     .hostname(config.host || 'localhost')
-    .port(config.port.toString() || '9090');
+    .port(config.port || '9090');
   const retVal = uri.toString();
   if (e !== undefined) e.returnValue = retVal;
   return retVal;

@@ -13,6 +13,11 @@ interface ConfigData {
 export function readConfig(confFile: string) {
   let config: ConfigData = {};
 
+  if (!fs.existsSync(nodecgPath('cfg'))) {
+    console.log("cfg dir does not exist, creating");
+    fs.mkdirSync(nodecgPath('cfg'));
+  }
+
   let confPath = nodecgPath('cfg', `${confFile}.json`);
   try {
     const rawConfig = fs.readFileSync(confPath);
