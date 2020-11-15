@@ -1,81 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Grid, InputAdornment, Typography } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-material-ui';
 import { ipcRenderer } from 'electron';
 
-import { string, object, number, boolean, array } from 'yup';
+import { string, object, number } from 'yup';
+import { ipcCommands, ipcMessages } from 'common/ipc-messages';
 
 interface ConfigForm {
   host: string
 }
 
 export const Config = () => {
+  const fetchConfig = () => ipcRenderer.sendSync(ipcCommands.getConfig, 'nodecg');
+  const [config, setConfig] = useState(fetchConfig());
 
-  const handleSubmit = (values: ConfigForm) => {
-    console.log(values);
+  const handleFormSubmit = async (values: ConfigForm) => {
+    ipcRenderer.sendSync(ipcCommands.setConfig, ['nodecg', values]);
   };
 
   // Defaults taken from https://github.com/nodecg/nodecg/blob/master/lib/config/loader.js
-
-  const logLevelSchema = string().oneOf(['trace', 'debug', 'info', 'warn', 'error']).default('info');
-
-  const schema = object().shape({
+  const schema = object({
     host: string().default('localhost'),
-    port: number().default(9090),
-    baseURL: string().default(''),
-    developer: boolean().default(false),
-    exitOnUncaught: boolean().default(true),
-    logging: object().shape({
-      replicants: boolean().default(false),
-      console: object().shape({
-        enabled: boolean().default(false),
-        level: logLevelSchema
-      }),
-      file: object().shape({
-        enabled: boolean().default(false),
-        path: string().default('logs/nodecg.log'),
-        level: logLevelSchema
-      })
-    }),
-    bundles: object().shape({
-      enabled: array().when('$disabled', {
-        is: null,
-        then: array().of(string()),
-        otherwise: null,
-      }).default(null),
-      disabled: array().when('$enabled', {
-        is: null,
-        then: array().of(string()),
-        otherwise: null,
-      }).default(null)
-    })
+    port: number().default(9090)
   });
 
-  const config = ipcRenderer.sendSync('sync-get-config', ['core']);
+  ipcRenderer.on(ipcMessages.configUpdated, (e, confFile) => {
+    if (confFile === 'nodecg')
+      setConfig(fetchConfig());
+  });
+
+  const initialValues = schema.cast(config);
 
   return (
     <>
-      <Typography variant="h6">Config</Typography>
-      <Typography>Work in Progress</Typography>
-      <Formik initialValues={config} onSubmit={handleSubmit} validationSchema={schema}>
-        <Form>
-          <Grid container>
-            <Grid item xs={6}>
-              <Field component={TextField} name="host" type="text" label="Host" fullWidth margin="normal"
-                     helperText={(<>The IP address or hostname that NodeCG should bind to. <i>Default:
-                       localhost</i></>)} />
-            </Grid>
-            <Grid item xs={6}>
-              <Field component={TextField} name="port" type="number" label="Port" fullWidth margin="normal" min="1"
-                     helperText={(<>The port that NodeCG should listen on. <i>Default: 9090</i></>)}
-                     InputProps={{ startAdornment: <InputAdornment position="start">:</InputAdornment> }} />
-            </Grid>
-          </Grid>
-          <Field component={TextField} name="baseURL" type="string" label="Base URL" fullWidth margin="normal"
-                 helperText={(<>The URL of this instance. <i>Defaults to the above</i></>)} />
-        </Form>
+      <Typography variant="h3" component="h1">Config</Typography>
+      <Typography>Making any changes here will require restarting NodeCG</Typography>
+      {/* @ts-ignore Getting defaults wrong for some reason */}
+      <Formik initialValues={initialValues} onSubmit={handleFormSubmit} validationSchema={schema}>
+        {({ submitForm, isSubmitting }) => (
+          <Form>
+            <Field component={TextField} name="host" type="text" label="Host" fullWidth margin="normal"
+                   helperText={(<>The IP address or hostname that NodeCG should bind to. <i>Default:
+                     localhost</i></>)} />
+            <Field component={TextField} name="port" type="number" label="Port" fullWidth margin="normal" min="1"
+                   helperText={(<>The port that NodeCG should listen on. <i>Default: 9090</i></>)} />
+            <Button onClick={submitForm} disabled={isSubmitting} variant="contained" fullWidth>Save</Button>
+          </Form>
+        )}
       </Formik>
     </>
   );

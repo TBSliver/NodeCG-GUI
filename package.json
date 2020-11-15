@@ -16,6 +16,7 @@
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.2.0",
     "source-map-support": "^0.5.16",
+    "urijs": "^1.19.2",
     "yup": "^0.29.3"
   },
   "devDependencies": {
@@ -25,6 +26,7 @@
     "@types/node": "^14.14.0",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.6",
+    "@types/urijs": "^1.19.13",
     "@types/yup": "^0.29.8",
     "electron": "10.1.4",
     "electron-builder": "^22.9.1",
