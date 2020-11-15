@@ -17,6 +17,10 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.1.2
 
+      - name: Install NodeCG Dependencies
+        run: npm install --production
+        working-directory: ./vendor/nodecg
+
       - name: Build Electron App
         uses: samuelmeuli/action-electron-builder@v1
         with:
