@@ -21,7 +21,8 @@ export function hasRunningNodeCG(e?: Electron.IpcMainEvent) {
 export function startNodeCG() {
   if (childNodeCG === undefined) {
     childNodeCG = fork('index.js', undefined, {
-      cwd: nodecgPath()
+      cwd: nodecgPath(),
+      env: { ELECTRON_RUN_AS_NODE: '1' }
     });
   }
   messageMainWindow(ipcMessages.nodeCGRunning, true);
