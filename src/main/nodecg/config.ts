@@ -42,15 +42,12 @@ function setConfig(confFile: string, config: object) {
       ...configCache[confFile],
       ...config
     }
-    console.log(newConfig);
-    console.log(confPath);
     const output = JSON.stringify(newConfig);
     fs.writeFileSync(confPath, output);
   } catch (e) {
     console.log(e);
   }
   messageMainWindow(ipcMessages.configUpdated, confFile);
-
 }
 
 function readConfigListener(e: Electron.IpcMainEvent, confFile: string) {
@@ -59,8 +56,8 @@ function readConfigListener(e: Electron.IpcMainEvent, confFile: string) {
 
 function setConfigListener(e: Electron.IpcMainEvent, args: any[]) {
   const [confFile, config] = args;
-  console.log(args);
   setConfig(confFile, config);
+  e.returnValue = true;
 }
 
 export function setupConfigIpcListeners() {
